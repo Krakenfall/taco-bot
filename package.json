@@ -1,0 +1,14 @@
+{
+  "name": "groupme_command_bot",
+  "version": "1.0.0",
+  "description": "Node.js on Docker",
+  "author": "Krakenfall",
+  "main": "nodeserver.js",
+  "scripts": {
+    "start": "node nodeserver.js"
+  },
+  "dependencies": {
+    "request": "^2.74.0",
+	"express": "^4.14.0"
+  }
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#submit").click(function() {
+		var cName = $("#commandName").val();
+		var cValue = $("#commandValue").val();
+		$("#message").text("Adding command !" + cName + " with value \"" + cValue + "\"");
+		$.ajax({
+			url: '/addcommand',
+			type: 'POST',
+			contentType: "text/json; charset=utf-8",
+			data: "{ \"name\": \"" + cName + "\", \"value\": \"" + cValue + "\" }",
+			success: function(result) {
+				$("#result").text("Result: " + result);
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				$("#result").text("Result: Failed. Status: " + 
+					textStatus + "\r\nError: " + errorThrown);
+			}
+		});
+		$(this).hide();
+	});
+});
+</script>
+</head>
+
+<body>
+Enter the new command:<br>
+! <input type="text" id="commandName" placeholder="Command Name">  
+<input type="text" id="commandValue" placeholder="Taco_Bot posts...">
+<button id="submit">Submit</button> <br>
+<b>Note:</b> This page is not a public page and will not work for unauthorized users<br><br>
+<div id="message"></div><br>
+<div id="result"></div><br>
+<a href="/commandlist" target="_blank">Command List</a><br>
+<h3>Command Requirements</h3>
+*  The command name must not have any symbols or spaces in the name<br>
+*  The command name will be automatically converted to lower case<br>
+*  The Taco_Bot response text should be one complete line of text or URLs<br>
+*  More advanced responses than just a text response <a href="https://goo.gl/forms/4whFe5ssYGf8NWAJ3" target="_blank">should be submitted to the suggestion Google form</a>
+</body>
+</html>

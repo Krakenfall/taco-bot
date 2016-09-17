@@ -1,6 +1,7 @@
 var fs = require('fs');
 var http = require('http');
 var request = require('request');
+
 var util = require("./util.js");
 
 var getBadCommands = function(badCommandsFile, callback) {
@@ -26,23 +27,23 @@ var getLog = function(logName, callback) {
 	});
 };
 
-var liveswitch = function(configFile, callback) {
-		var config = null;
+var liveswitch = function(configFileName, callback) {
+		var config = {};
+
 		try {
-			config = JSON.parse(fs.readFileSync(configFile));
-			if (config.testmode == 'true') {
-				config.testmode = 'false';
-			} else {
-				config.testmode = 'true';
-			}
-		} catch(err) {
-			callback("Error reading " + configFile + ":\r\n" + err);
+			config = require(configFileName);
+			config.testmode = !config.testmode;
 		}
-		try {			
-			fs.writeFileSync(configFile, JSON.stringify(config));
+		catch(err) {
+			callback("Error reading " + configFileName + ":\r\n" + err);
+		}
+
+		try {
+			fs.writeFileSync(configFileName, JSON.stringify(config));
 			callback(null, config);
-		} catch (err) {
-			callback("Error writing to " + configFile + ":\r\n" + err);
+		}
+		catch (err) {
+			callback("Error writing to " + configFileName + ":\r\n" + err);
 		}
 };
 

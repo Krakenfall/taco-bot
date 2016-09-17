@@ -1,25 +1,36 @@
+// Include third-party dependencies
 var Promise = require('bluebird');
-
 var fs = Promise.promisifyAll(require('fs'));
-var dns = require('dns');
+var dns = Promise.promisifyAll(require('dns'));
 var express = require('express');
 
+// Include Internal dependencies
 var commands = require("./commands.js");
 var apputil = require("./util.js");
 var dtg_bot = require("./dtg_bot.js");
 var api = require("./api.js");
 
-var app = express();
-var ipr = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
+// Define constants
+var CONFIG_FILE_NAME = './appconfig.json';
+var IPV4_MATCHER = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
 
-var config = null;
-var configFile = "appconfig.json";
+// Define globals
+var config = {};
 
+
+// Load the configuration. If the file does not exist, terminate the application.
 try {
-	config = JSON.parse(fs.readFileSync(configFile));
-} catch(error) {
-	console.log("Could not read config file at \\" + configFile + ":\r\n" + error);
+	config = require(CONFIG_FILE_NAME);
 }
+catch(error) {
+	console.log(`Could not read config file at ${CONFIG_FILE}:\r\n${error}`);
+	return -1;
+}
+
+
+// Start express application.
+var app = express();
+
 
 var staticFilesDir = function() {
 	if (/^win/.test(process.platform)) {
@@ -34,7 +45,8 @@ try {
 	c["commands"] = "http://" + config.domain + ":" + config.port + "/commandlist";
 	fs.writeFileSync(commands.commandJsonDir(), JSON.stringify(c));
 	apputil.log("Successfully updated commands list url with port " + config.port);
-} catch (error) {
+}
+catch (error) {
 	apputil.log("Could not update commands list url in commands.json with port specification:\r\n" + error);
 }
 
@@ -73,7 +85,7 @@ app.get("/add", function(req, res) {
 
 app.post("/addcommand", function(req, res) {
 	var incoming = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-	var ip = incoming.match(ipr);
+	var ip = incoming.match(IPV4_MATCHER);
 	dns.resolve(config.domain, function(err, addresses, family) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
 			var body = "";
@@ -109,7 +121,7 @@ app.post("/addcommand", function(req, res) {
 
 app.get("/log", function(req, res) {
 	var incoming = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-	var ip = incoming.match(ipr);
+	var ip = incoming.match(IPV4_MATCHER);
 	dns.resolve(config.domain, function(err, addresses, family) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
 			api.log(config.logFile, function(error, logData){
@@ -131,7 +143,7 @@ app.get("/log", function(req, res) {
 
 app.get("/badcommands", function(req, res) {
 	var incoming = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-	var ip = incoming.match(ipr);
+	var ip = incoming.match(IPV4_MATCHER);
 	dns.resolve(config.domain, function(err, addresses, family) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
 			api.badcommands(config.badCommandsFile, function(error, badcommands){
@@ -153,7 +165,7 @@ app.get("/badcommands", function(req, res) {
 
 app.get("/testmode", function(req, res) {
 	var incoming = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-	var ip = incoming.match(ipr);
+	var ip = incoming.match(IPV4_MATCHER);
 	dns.resolve(config.domain, function(err, addresses, family) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
 			res.end(config.testmode.toString());
@@ -168,10 +180,10 @@ app.get("/testmode", function(req, res) {
 
 app.get("/toggletestmode", function(req, res) {
 	var incoming = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
-	var ip = incoming.match(ipr);
+	var ip = incoming.match(IPV4_MATCHER);
 	dns.resolve(config.domain, function(err, addresses, family) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
-			api.toggletestmode(configFile, function(error, newConfig) {
+			api.toggletestmode(CONFIG_FILE_NAME, function(error, newConfig) {
 				if (!error) {
 					config = newConfig;
 					var message = "Test mode successfully toggled. Test mode now set to " + newConfig.testmode;

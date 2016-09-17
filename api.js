@@ -30,10 +30,10 @@ var liveswitch = function(configFile, callback) {
 		var config = null;
 		try {
 			config = JSON.parse(fs.readFileSync(configFile));
-			if (config.testmode == 'true') {
-				config.testmode = 'false';
+			if (config.testmode === true | config.testmode === "true") {
+				config.testmode = false;
 			} else {
-				config.testmode = 'true';
+				config.testmode = true;
 			}
 		} catch(err) {
 			callback("Error reading " + configFile + ":\r\n" + err);

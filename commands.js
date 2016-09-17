@@ -1,7 +1,7 @@
 var fs = require('fs');
 var http = require('http');
 var request = require('request');
-var util = require("./util.js");
+var apputil = require("./util.js");
 
 var commandJsonDir = function() {
 	if (/^win/.test(process.platform)) {
@@ -11,8 +11,23 @@ var commandJsonDir = function() {
 	}
 };
 
+var sortObject = function (o) {
+    var sorted = {},
+    key, a = [];
+    for (key in o) {
+        if (o.hasOwnProperty(key)) {
+            a.push(key);
+        }
+    }
+    a.sort();
+    for (key = 0; key < a.length; key++) {
+        sorted[a[key]] = o[a[key]];
+    }
+    return sorted;
+};
+
 var listCommands = function(callback) {
-	util.readFile(commandJsonDir(), function (error, commandsFileContent){
+	apputil.readFile(commandJsonDir(), function (error, commandsFileContent){
 		if (error) {
 			callback(error);
 		} else {
@@ -20,7 +35,7 @@ var listCommands = function(callback) {
 			try {
 				storedCommands = JSON.parse(commandsFileContent);
 			} catch(e) {
-				util.log("Error: Could not parse stored commands:\r\n" + e);
+				apputil.log("Error: Could not parse stored commands:\r\n" + e);
 				callback(e);
 			}
 			try {
@@ -28,6 +43,7 @@ var listCommands = function(callback) {
 					"<title>Taco Bot Commands</title></head><body><h1>Available Commands</h1>" + 
 					"<table border=\"0\">" +
 					"<tr><th>Command</th><th>Response</th></tr>";
+				storedCommands = sortObject(storedCommands);
 				for (var storedCommand in storedCommands) {
 					list += "<tr><td>!" + storedCommand + "</td><td>";
 					// If JSON object is an array list out the options
@@ -55,7 +71,7 @@ var listCommands = function(callback) {
 				list += "</table></body></html>";
 				callback(null, list);
 			} catch(err) {
-				util.log("Error generating command list html:\r\n" + err);
+				apputil.log("Error generating command list html:\r\n" + err);
 				callback(err);
 			}
 		}
@@ -83,7 +99,7 @@ var updateCommands = function(postData, callback) {
 				currentCommands = JSON.parse(fs.readFileSync(commandJsonDir()));			
 			} catch(err) {
 				var message = "Error parsing commands.json:\r\n" + err;
-				util.log(message);
+				apputil.log(message);
 				callback(err);
 				// Below: disallows adding invalid commands
 				// This shouldn't be needed, but just to be sure (paranoia)
@@ -98,18 +114,18 @@ var updateCommands = function(postData, callback) {
 						newCommand.value + "\"");
 				} catch (error) {
 					var message = "Error parsing commands.json while updating commands:\r\n" + error;
-					util.log(message);
+					apputil.log(message);
 					callback(message);
 				}
 			} else {
 				var message = "Error updating commands:\r\n\t Data read from commands.json was null?";
-				util.log(message);
+				apputil.log(message);
 				callback(message);
 			}
 		}
 	} catch(err) {
 		var message = "Error: Submitted data was an invalid command or had invalid JSON:\r\n" + err;
-		util.log(message);
+		apputil.log(message);
 		callback(message);
 	}
 		
@@ -136,7 +152,7 @@ try {
 	jokes = JSON.parse(fs.readFileSync(commandJsonDir())).joke;
 	husker = JSON.parse(fs.readFileSync(commandJsonDir())).huskersermon;
 }
-catch (err) { util.log("Error: Failed to read command.json at startup\r\n" + err); }
+catch (err) { apputil.log("Error: Failed to read command.json at startup\r\n" + err); }
 var checkForCommandArray = function(command, commandObject, callback) {
 	if (command == "joke" && Object.prototype.toString.call(commandObject) == "[object Array]") {	
 		console.log("jokes.length: " + jokes.length);
@@ -144,13 +160,13 @@ var checkForCommandArray = function(command, commandObject, callback) {
 		console.log("Startup: " + jokeStartup);
 		if (jokeStartup) {
 			console.log("Hit code: jokePick = 0");
-			jokes = util.shuffle(jokes);
+			jokes = apputil.shuffle(jokes);
 			jokeStartup = false;
 		}
 		// Reset pool if jokePicks are exhausted
 		if (jokePick >= jokes.length - 1) {
 			console.log("Hit code: jokePick >= jokes.length - 1");
-			jokes = util.shuffle(jokes);
+			jokes = apputil.shuffle(jokes);
 			jokePick = 0;
 		}
 		// Reset pool if new jokes are added
@@ -161,10 +177,10 @@ var checkForCommandArray = function(command, commandObject, callback) {
 			try { jokes = JSON.parse(fs.readFileSync(commandJsonDir())).joke; }
 			catch (err) {
 				var errmessage = "Error: Failed to reload command.json for new jokes\r\n" + err;
-				util.log(errmessage);
+				apputil.log(errmessage);
 				callback(errmessage);
 			}
-			jokes = util.shuffle(jokes);
+			jokes = apputil.shuffle(jokes);
 			jokePick = 0;
 		}
 		var pickObject = jokes[jokePick];
@@ -178,13 +194,13 @@ var checkForCommandArray = function(command, commandObject, callback) {
 		console.log("Startup: " + huskerStartup);
 		if (huskerStartup) {
 			console.log("Hit code: huskerPick = 0");
-			husker = util.shuffle(husker);
+			husker = apputil.shuffle(husker);
 			huskerStartup = false;
 		}
 		// Reset pool if huskerStartups are exhausted
 		if (huskerPick >= husker.length - 1) {
 			console.log("Hit code: huskerPick >= husker.length - 1");
-			husker = util.shuffle(husker);
+			husker = apputil.shuffle(husker);
 			huskerPick = 0;
 		}
 		// Reset pool if new husker are added
@@ -195,10 +211,10 @@ var checkForCommandArray = function(command, commandObject, callback) {
 			try { husker = JSON.parse(fs.readFileSync(commandJsonDir())).joke; }
 			catch (err) {
 				var errmessage = "Error: Failed to reload command.json for new husker\r\n" + err;
-				util.log(errmessage);
+				apputil.log(errmessage);
 				callback(errmessage);
 			}
-			husker = util.shuffle(husker);
+			husker = apputil.shuffle(husker);
 			huskerPick = 0;
 		}
 		var pickObject = husker[huskerPick];
@@ -213,15 +229,15 @@ var checkForCommandArray = function(command, commandObject, callback) {
 };
 
 var processCommand = function(command, post, config) {
-	util.readFile(commandJsonDir(), function (error, commandsFileContent){
+	apputil.readFile(commandJsonDir(), function (error, commandsFileContent){
 		if (error) {
-			util.log(error);
+			apputil.log(error);
 		} else {
 			var storedCommands = null;		
 			try {
 				storedCommands = JSON.parse(commandsFileContent);
 			} catch(e) {
-				util.log("Error: Could not parse stored commands:\r\n" + e);
+				apputil.log("Error: Could not parse stored commands:\r\n" + e);
 			}
 			var commandFound = false;
 			for (var storedCommand in storedCommands) {
@@ -230,22 +246,22 @@ var processCommand = function(command, post, config) {
 					checkForCommandArray(storedCommand, storedCommands[storedCommand], 
 						function(err, reply) {
 						if (!err) {
-							util.groupme_text_post(reply, config, function(e, result){
+							apputil.groupme_text_post(reply, config, function(e, result){
 								if (!e) {
-									util.log(result);
+									apputil.log(result);
 								} else {
-									util.log(e);
+									apputil.log(e);
 								}
 							});
 						} else {
-							util.log(err);
+							apputil.log(err);
 						}
 					});
 					
 				}
 			}
 			if (!commandFound) {
-				util.log("Command not found: " + command.toLowerCase() + "\r\n", "commands_not_found.txt");
+				apputil.log("Command not found: " + command.toLowerCase() + "\r\n", "commands_not_found.txt");
 			}
 		}
 	});
@@ -263,7 +279,7 @@ module.exports = {
 		try {
 			var messageObject = JSON.parse(groupmePost);
 		} catch (err) {
-			util.log("Bad JSON in message from GroupMe:\r\nMessage:\r\n" + groupmePost
+			apputil.log("Bad JSON in message from GroupMe:\r\nMessage:\r\n" + groupmePost
 				+ "\r\nError:\r\n" + err);
 		}
 		if (messageObject) {

@@ -31,6 +31,6 @@ The Node.js timed script queries the Reddit API for new posts by /u/DTG_Bot and 
  }
 }
 ```
-2. Set the callback URL for the GroupMe bot using the format `http://[ipaddress where the app runs]:[port from appconfig]/command`
+2. Set the callback URL for the GroupMe bot using the format `http://[domain from appconfig]:[port from appconfig]/command`
 3. Run the command `node nodeserver.js`
 4. [incomplete]

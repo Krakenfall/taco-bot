@@ -5,7 +5,8 @@ var dns = require('dns');
 var express = require('express');
 
 var commands = require("./commands.js");
-var util = require("./util.js");
+var apputil = require("./util.js");
+var dtg_bot = require("./dtg_bot.js");
 var api = require("./api.js");
 
 var app = express();
@@ -20,22 +21,22 @@ try {
 	console.log("Could not read config file at \\" + configFile + ":\r\n" + error);
 }
 
+var staticFilesDir = function() {
+	if (/^win/.test(process.platform)) {
+		return __dirname + "\\public"
+	} else {
+		return __dirname + "/public"
+	}
+};
+
 try {
 	var c = JSON.parse(fs.readFileSync(commands.commandJsonDir()));
 	c["commands"] = "http://" + config.domain + ":" + config.port + "/commandlist";
 	fs.writeFileSync(commands.commandJsonDir(), JSON.stringify(c));
-	util.log("Successfully updated commands list url with port " + config.port);
+	apputil.log("Successfully updated commands list url with port " + config.port);
 } catch (error) {
-	util.log("Could not update commands list url in commands.json with port specification:\r\n" + error);
+	apputil.log("Could not update commands list url in commands.json with port specification:\r\n" + error);
 }
-
-var staticFilesDir = function() {
-	if (/^win/.test(process.platform)) {
-		return __dirname + "\\" + config.staticFilesDir;
-	} else {
-		return __dirname + "/" + config.staticFilesDir;
-	}
-};
 
 app.use(express.static(staticFilesDir()));
 
@@ -81,7 +82,7 @@ app.post("/addcommand", function(req, res) {
 			});
 			req.on('end', function () {
 			  res.writeHead(200, {'Content-Type': 'text/html'});
-			  util.log('New command Posted: ' + body);
+			  apputil.log('New command Posted: ' + body);
 			  var addMessage = "Adding new command failed with error:\r\n";
 			  try {
 			  commands.update(body, function(error, message) {
@@ -90,16 +91,16 @@ app.post("/addcommand", function(req, res) {
 				} else {
 					addMessage += error;
 				}
-				util.log(addMessage);
+				apputil.log(addMessage);
 				res.end(addMessage);
 			  });
 			  } catch (err) {
-				util.log(addMessage + err);
+				apputil.log(addMessage + err);
 				res.end(addMessage + err);
 			  }
 			});
 		} else {
-			util.log("IP: " + ip + " tried to access /addcommand. cbarr.net: " + addresses[0],
+			apputil.log("IP: " + ip + " tried to access /addcommand. cbarr.net: " + addresses[0],
 				config.accessLogFile);
 			res.status(500).send('Access denied');
 		}
@@ -113,7 +114,7 @@ app.get("/log", function(req, res) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
 			api.log(config.logFile, function(error, logData){
 				if (error) {
-					util.log(error);
+					apputil.log(error);
 					res.end(error);
 				} else {
 					res.end(logData);
@@ -121,7 +122,7 @@ app.get("/log", function(req, res) {
 			});
 		}
 		else {
-			util.log("IP: " + ip + " tried to access /log. cbarr.net: " + addresses[0],
+			apputil.log("IP: " + ip + " tried to access /log. cbarr.net: " + addresses[0],
 				config.accessLogFile);
 			res.status(500).send('Access denied');
 		}
@@ -135,7 +136,7 @@ app.get("/badcommands", function(req, res) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
 			api.badcommands(config.badCommandsFile, function(error, badcommands){
 				if (error) {
-					util.log(error);
+					apputil.log(error);
 					res.end(error);
 				} else {
 					res.end(badcommands);
@@ -143,7 +144,7 @@ app.get("/badcommands", function(req, res) {
 			});
 		}
 		else {
-			util.log("IP: " + ip + " tried to access /badcommands. cbarr.net: " + addresses[0],
+			apputil.log("IP: " + ip + " tried to access /badcommands. cbarr.net: " + addresses[0],
 				config.accessLogFile);
 			res.status(500).send('Access denied');
 		}
@@ -158,7 +159,7 @@ app.get("/testmode", function(req, res) {
 			res.end(config.testmode.toString());
 		}
 		else {
-			util.log("IP: " + ip + " tried to access /testmode. cbarr.net: " + addresses[0],
+			apputil.log("IP: " + ip + " tried to access /testmode. cbarr.net: " + addresses[0],
 				config.accessLogFile);
 			res.status(500).send('Access denied');
 		}
@@ -174,16 +175,16 @@ app.get("/toggletestmode", function(req, res) {
 				if (!error) {
 					config = newConfig;
 					var message = "Test mode successfully toggled. Test mode now set to " + newConfig.testmode;
-					util.log(message);
+					apputil.log(message);
 					res.end(message);
 				} else {
-					util.log(error);
+					apputil.log(error);
 					res.end(error);
 				}
 			});
 		}
 		else {
-			util.log("IP: " + ip + " tried to access /toggletestmode. cbarr.net: " + addresses[0],
+			apputil.log("IP: " + ip + " tried to access /toggletestmode. cbarr.net: " + addresses[0],
 				config.accessLogFile);
 			res.status(500).send('Access denied');
 		}
@@ -191,10 +192,19 @@ app.get("/toggletestmode", function(req, res) {
 });
 
 app.use(function(err, req, res, next) {
-  util.log("Error with server:\r\nError:\r\n" + err + "\r\nStack:" + err.stack);
+  apputil.log("Error with server:\r\nError:\r\n" + err + "\r\nStack:" + err.stack);
   res.status(500).send('Something broke!');
 });
 
+apputil.log("Beginning dtg_bot loop.");
+setInterval(function(){
+	dtg_bot.run(config, function(error) {
+		if (error) {
+			apputil.log("Failed when running dtg_bot:\r\n" + error);
+		}
+	});
+}, 60 * 5 * 1000);
+
 app.listen(config.port, function () {
-	util.log("Server listening on port " + config.port);
+	apputil.log("Server listening on port " + config.port);
 });

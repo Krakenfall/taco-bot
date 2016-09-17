@@ -1,6 +1,8 @@
 # taco-bot
 Taco Bot is a node.js-based bot for GroupMe that replies to user-posted chat commands. This bot was made for the Destiny clan "DeltaCo 71".
 
+[Jenkins Page](http://cbarr.net:9000/job/taco-bot/)
+
 # Layout
 Taco Bot is actually made of several pieces:
   * GroupMe Bot
@@ -31,6 +33,6 @@ The Node.js timed script queries the Reddit API for new posts by /u/DTG_Bot and 
  }
 }
 ```
-2. Set the callback URL for the GroupMe bot using the format `http://[ipaddress where the app runs]:[port from appconfig]/command`
+2. Set the callback URL for the GroupMe bot using the format `http://[domain from appconfig]:[port from appconfig]/command`
 3. Run the command `node nodeserver.js`
 4. [incomplete]

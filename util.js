@@ -22,10 +22,10 @@ var getFileContents = function(filename, callback) {
 	var contents = null;
 	try {
 		contents = fs.readFileSync(filename);
+		callback(null, contents);
 	} catch(err) {
 		callback("Error: Could not read file " + filename + "\r\n" + err);
 	}
-	callback(null, contents);
 };
 
 var groupme_text_post = function(text, config, callback) {

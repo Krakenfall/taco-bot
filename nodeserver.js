@@ -14,7 +14,7 @@ var api = require("./api.js");
 const CONFIG_FILE_NAME = './appconfig.json';
 const IPV4_MATCHER = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
 
-// Define globals
+// Define global
 var config = null;
 
 

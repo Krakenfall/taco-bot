@@ -11,11 +11,11 @@ var dtg_bot = require("./dtg_bot.js");
 var api = require("./api.js");
 
 // Define constants
-var CONFIG_FILE_NAME = './appconfig.json';
-var IPV4_MATCHER = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
+const CONFIG_FILE_NAME = './appconfig.json';
+const IPV4_MATCHER = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
 
 // Define globals
-var config = {};
+var config = null;
 
 
 // Load the configuration. If the file does not exist, terminate the application.
@@ -209,13 +209,17 @@ app.use(function(err, req, res, next) {
 });
 
 apputil.log("Beginning dtg_bot loop.");
-setInterval(function(){
-	dtg_bot.run(config, function(error) {
-		if (error) {
-			apputil.log("Failed when running dtg_bot:\r\n" + error);
-		}
-	});
-}, 60 * 5 * 1000);
+if (config.reddit) {
+	setInterval(function(){
+		dtg_bot.run(config, function(error) {
+			if (error) {
+				apputil.log("Failed when running dtg_bot:\r\n" + error);
+			}
+		});
+	}, 60 * 5 * 1000);
+} else {
+	apputil.log("Warning: No reddit access key found in appconfig.json. Dtg_bot functions will be inactive.");
+}
 
 app.listen(config.port, function () {
 	apputil.log("Server listening on port " + config.port);

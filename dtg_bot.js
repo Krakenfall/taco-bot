@@ -74,7 +74,8 @@ var run = function(config, callback) {
 						if (config.dtgCommandUpdates && 
 							config.dtgCommandUpdates.length > 0) {
 							for (var k = 0; k < config.dtgCommandUpdates.length; k++) {
-								if (postTitle.indexOf(config.dtgCommandUpdates[k].redditFilter) > -1) {
+								if (config.dtgCommandUpdates[k].redditFilter && 
+									postTitle.indexOf(config.dtgCommandUpdates[k].redditFilter) > -1) {
 									var updateData = { 
 										"name": config.dtgCommandUpdates[k].name, 
 										"value": postUrl

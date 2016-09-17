@@ -194,14 +194,17 @@ app.use(function(err, req, res, next) {
 });
 
 apputil.log("Beginning dtg_bot loop.");
-setInterval(function(){
-	dtg_bot.run(config, function(error) {
-		if (error) {
-			apputil.log("Failed when running dtg_bot:\r\n" + error);
-		}
-	});
-}, 60 * 5 * 1000);
-
+if (config.reddit) {
+	setInterval(function(){
+		dtg_bot.run(config, function(error) {
+			if (error) {
+				apputil.log("Failed when running dtg_bot:\r\n" + error);
+			}
+		});
+	}, 60 * 5 * 1000);
+} else {
+	apputil.log("Warning: No reddit access key found in appconfig.json. Dtg_bot functions will be inactive.");
+}
 app.listen(config.port, function () {
 	apputil.log("Server listening on port " + config.port);
 });

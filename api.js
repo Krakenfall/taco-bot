@@ -31,8 +31,19 @@ var liveswitch = function(configFileName, callback) {
 		var config = {};
 
 		try {
+<<<<<<< HEAD
 			config = require(configFileName);
 			config.testmode = !config.testmode;
+=======
+			config = JSON.parse(fs.readFileSync(configFile));
+			if (config.testmode === true | config.testmode === "true") {
+				config.testmode = false;
+			} else {
+				config.testmode = true;
+			}
+		} catch(err) {
+			callback("Error reading " + configFile + ":\r\n" + err);
+>>>>>>> refs/remotes/origin/master
 		}
 		catch(err) {
 			callback("Error reading " + configFileName + ":\r\n" + err);

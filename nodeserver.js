@@ -1,17 +1,20 @@
-var http = require('http');
-var fs = require('fs');
+var Promise = require('bluebird');
+
+var fs = Promise.promisifyAll(require('fs'));
+var dns = require('dns');
+var express = require('express');
+
 var commands = require("./commands.js");
 var util = require("./util.js");
 var api = require("./api.js");
-var dns = require('dns');
-var express = require('express');
+
 var app = express();
 var ipr = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
 
 var config = null;
 var configFile = "appconfig.json";
 
-try {	
+try {
 	config = JSON.parse(fs.readFileSync(configFile));
 } catch(error) {
 	console.log("Could not read config file at \\" + configFile + ":\r\n" + error);
@@ -176,7 +179,7 @@ app.get("/toggletestmode", function(req, res) {
 				} else {
 					util.log(error);
 					res.end(error);
-				}				
+				}
 			});
 		}
 		else {

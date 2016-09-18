@@ -4,11 +4,7 @@ var request = require('request');
 var apputil = require("./util.js");
 
 var commandJsonDir = function() {
-	if (/^win/.test(process.platform)) {
-		return __dirname + "\\public\\commands.json";
-	} else {
-		return __dirname + "/public/commands.json";
-	}
+		return './public/commands.json';
 };
 
 var sortObject = function (o) {
@@ -40,7 +36,7 @@ var listCommands = function(callback) {
 			}
 			try {
 				var list = "<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">" +
-					"<title>Taco Bot Commands</title></head><body><h1>Available Commands</h1>" + 
+					"<title>Taco Bot Commands</title></head><body><h1>Available Commands</h1>" +
 					"<table border=\"0\">" +
 					"<tr><th>Command</th><th>Response</th></tr>";
 				storedCommands = sortObject(storedCommands);
@@ -51,7 +47,7 @@ var listCommands = function(callback) {
 						for (var item in storedCommand) {
 							if (storedCommand[item].indexOf("http") > -1 ||
 								storedCommand[item].indexOf("www") > -1) {
-								list += " \"<a href=\"" + storedCommand[item] + "\" target=\"_blank\">" + 
+								list += " \"<a href=\"" + storedCommand[item] + "\" target=\"_blank\">" +
 								storedCommand[item] + "</a><br />";
 							} else {
 								list += "\" " + storedCommand[item] + "<br />";
@@ -60,7 +56,7 @@ var listCommands = function(callback) {
 					} else {
 						// If not, just put the string content in the table slot
 						if (storedCommands[storedCommand].indexOf("http") > -1) {
-							list += "<a href=\"" + storedCommands[storedCommand] + "\" target=\"_blank\">" + 
+							list += "<a href=\"" + storedCommands[storedCommand] + "\" target=\"_blank\">" +
 							storedCommands[storedCommand] + "</a>";
 						} else {
 							list += storedCommands[storedCommand];
@@ -96,7 +92,7 @@ var updateCommands = function(postData, callback) {
 		} else {
 			var currentCommands = null;
 			try {
-				currentCommands = JSON.parse(fs.readFileSync(commandJsonDir()));			
+				currentCommands = JSON.parse(fs.readFileSync(commandJsonDir()));
 			} catch(err) {
 				var message = "Error parsing commands.json:\r\n" + err;
 				apputil.log(message);
@@ -104,7 +100,7 @@ var updateCommands = function(postData, callback) {
 				// Below: disallows adding invalid commands
 				// This shouldn't be needed, but just to be sure (paranoia)
 				currentCommands = null;
-			}		
+			}
 			if (currentCommands) {
 				try {
 					currentCommands[newCommand.name.toLowerCase()] = newCommand.value;
@@ -128,7 +124,7 @@ var updateCommands = function(postData, callback) {
 		apputil.log(message);
 		callback(message);
 	}
-		
+
 };
 
 var parseMessage = function(message) {
@@ -148,13 +144,13 @@ var jokeStartup = true;
 var huskerStartup = true;
 var jokes = [];
 var husker = [];
-try { 
+try {
 	jokes = JSON.parse(fs.readFileSync(commandJsonDir())).joke;
 	husker = JSON.parse(fs.readFileSync(commandJsonDir())).huskersermon;
 }
 catch (err) { apputil.log("Error: Failed to read command.json at startup\r\n" + err); }
 var checkForCommandArray = function(command, commandObject, callback) {
-	if (command == "joke" && Object.prototype.toString.call(commandObject) == "[object Array]") {	
+	if (command == "joke" && Object.prototype.toString.call(commandObject) == "[object Array]") {
 		console.log("jokes.length: " + jokes.length);
 		// Initial joke shuffle
 		console.log("Startup: " + jokeStartup);
@@ -184,11 +180,11 @@ var checkForCommandArray = function(command, commandObject, callback) {
 			jokePick = 0;
 		}
 		var pickObject = jokes[jokePick];
-		console.log("jokes.length: " + jokes.length + 
+		console.log("jokes.length: " + jokes.length +
 			"\r\ncommandObject.length: " + commandObject.length + "\r\njokePick: " + jokePick);
 		jokePick++;
-		callback(null, pickObject);		
-	} else if(command == "huskersermon" && Object.prototype.toString.call(commandObject) == "[object Array]") {	
+		callback(null, pickObject);
+	} else if(command == "huskersermon" && Object.prototype.toString.call(commandObject) == "[object Array]") {
 		console.log("husker.length: " + husker.length);
 		// Initial joke shuffle
 		console.log("Startup: " + huskerStartup);
@@ -218,11 +214,11 @@ var checkForCommandArray = function(command, commandObject, callback) {
 			huskerPick = 0;
 		}
 		var pickObject = husker[huskerPick];
-		console.log("husker.length: " + husker.length + 
+		console.log("husker.length: " + husker.length +
 			"\r\ncommandObject.length: " + commandObject.length + "\r\nhuskerPick: " + huskerPick);
 		huskerPick++;
 		callback(null, pickObject);
-		
+
 	} else {
 		callback(null, commandObject);
 	}
@@ -233,7 +229,7 @@ var processCommand = function(command, post, config) {
 		if (error) {
 			apputil.log(error);
 		} else {
-			var storedCommands = null;		
+			var storedCommands = null;
 			try {
 				storedCommands = JSON.parse(commandsFileContent);
 			} catch(e) {
@@ -243,7 +239,7 @@ var processCommand = function(command, post, config) {
 			for (var storedCommand in storedCommands) {
 				if (command.toLowerCase() == storedCommand) {
 					commandFound = true;
-					checkForCommandArray(storedCommand, storedCommands[storedCommand], 
+					checkForCommandArray(storedCommand, storedCommands[storedCommand],
 						function(err, reply) {
 						if (!err) {
 							apputil.groupme_text_post(reply, config, function(e, result){
@@ -257,7 +253,7 @@ var processCommand = function(command, post, config) {
 							apputil.log(err);
 						}
 					});
-					
+
 				}
 			}
 			if (!commandFound) {
@@ -268,13 +264,13 @@ var processCommand = function(command, post, config) {
 };
 
 module.exports = {
-	
+
 	commandJsonDir: commandJsonDir,
-		
+
 	list: listCommands,
-	
+
 	update : updateCommands,
-	
+
 	investigate: function(groupmePost, config) {
 		try {
 			var messageObject = JSON.parse(groupmePost);
@@ -284,8 +280,8 @@ module.exports = {
 		}
 		if (messageObject) {
 			var commands = parseMessage(messageObject.text);
-			if (commands && 
-				messageObject.sender_id != "329044" && 
+			if (commands &&
+				messageObject.sender_id != "329044" &&
 				messageObject.sender_id != "329214" &&
 				messageObject.sender_id != "356826") {
 				for (var i = 0; i < commands.length; i++) {

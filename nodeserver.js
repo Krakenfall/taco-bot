@@ -5,17 +5,19 @@ var dns = Promise.promisifyAll(require('dns'));
 var express = require('express');
 
 // Include Internal dependencies
-var commands = require("./commands.js");
+var commandsController = require("./commands.js");
 var apputil = require("./util.js");
 var dtg_bot = require("./dtg_bot.js");
 var api = require("./api.js");
 
 // Define constants
 const CONFIG_FILE_NAME = './appconfig.json';
+const STATIC_CONTENT_DIR = './public';
 const IPV4_MATCHER = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
 
 // Define globals
 var config = null;
+var commands = null;
 
 
 // Load the configuration. If the file does not exist, terminate the application.
@@ -27,30 +29,30 @@ catch(error) {
 	return -1;
 }
 
-
-// Start express application.
-var app = express();
-
-
-var staticFilesDir = function() {
-	if (/^win/.test(process.platform)) {
-		return __dirname + "\\public"
-	} else {
-		return __dirname + "/public"
-	}
-};
-
+// Load the command list. If the file does not exist, terminate the application.
 try {
-	var c = JSON.parse(fs.readFileSync(commands.commandJsonDir()));
-	c["commands"] = "http://" + config.domain + ":" + config.port + "/commandlist";
-	fs.writeFileSync(commands.commandJsonDir(), JSON.stringify(c));
+	commands = require(commandsController.commandJsonDir());
+}
+catch(error) {
+	console.log(`Could not read commands file at ${commandsController.commandJsonDir()}:\r\n${error}`);
+	return -1;
+}
+
+// update the commands command to point to this instance of the bot
+try {
+	commands["commands"] = `http://${config.domain}:${config.port}/commandlist`;
+	fs.writeFileSync(commandsController.commandJsonDir(), JSON.stringify(commands));
 	apputil.log("Successfully updated commands list url with port " + config.port);
 }
 catch (error) {
-	apputil.log("Could not update commands list url in commands.json with port specification:\r\n" + error);
+	apputil.log(`Could not update commands list url in commands.json with port specification:\r\n${error}`);
 }
 
-app.use(express.static(staticFilesDir()));
+
+// Begin Express handlers
+var app = express();
+
+app.use(express.static(STATIC_CONTENT_DIR));
 
 app.get('/', function(req, res) {
 	res.send('No thank you.');
@@ -58,19 +60,21 @@ app.get('/', function(req, res) {
 
 app.post("/command", function(req, res) {
 	var body = "";
+
 	req.on('data', function (chunk) {
-	  body += chunk;
+		body += chunk;
 	});
+
 	req.on('end', function () {
-	  res.writeHead(200);
-	  console.log('Command Posted: ' + body);
-	  res.end(commands.investigate(body, config));
+		res.writeHead(200);
+		console.log('Command Posted: ' + body);
+		res.end(commandsController.investigate(body, config));
 	});
 });
 
 app.get("/commandlist", function(req, res) {
     res.writeHead(200, {'Content-Type': 'text/html'});
-	commands.list(function(error, commandPage) {
+	commandsController.list(function(error, commandPage) {
 		if (error) {
 			res.end("Whoops! Something went wrong.");
 		} else {

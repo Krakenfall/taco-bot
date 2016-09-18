@@ -104,7 +104,7 @@ var updateCommands = function(postData, callback) {
 			if (currentCommands) {
 				try {
 					currentCommands[newCommand.name.toLowerCase()] = newCommand.value;
-					fs.writeFileSync(commandJsonDir(), JSON.stringify(currentCommands));
+					fs.writeFileSync(commandJsonDir(), JSON.stringify(currentCommands, null, 2));
 					callback(null, "Command successfully added: !" +
 						newCommand.name.toLowerCase() + " returns \"" +
 						newCommand.value + "\"");

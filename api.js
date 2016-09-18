@@ -39,7 +39,7 @@ var liveswitch = function(configFileName, callback) {
 		}
 
 		try {
-			fs.writeFileSync(configFileName, JSON.stringify(config));
+			fs.writeFileSync(configFileName, JSON.stringify(config, null, 2));
 			callback(null, config);
 		}
 		catch (err) {

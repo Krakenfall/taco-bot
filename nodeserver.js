@@ -67,13 +67,14 @@ app.post("/command", function(req, res) {
 
 	req.on('end', function () {
 		res.writeHead(200);
-		console.log('Command Posted: ' + body);
+		console.log(`Command Posted: ${body}`);
 		res.end(commandsController.investigate(body, config));
 	});
 });
 
 app.get("/commandlist", function(req, res) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
+	res.writeHead(200, {'Content-Type': 'text/html'});
+
 	commandsController.list(function(error, commandPage) {
 		if (error) {
 			res.end("Whoops! Something went wrong.");
@@ -88,34 +89,43 @@ app.get("/add", function(req, res) {
 });
 
 app.post("/addcommand", function(req, res) {
-	var incoming = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+	var incoming = req.ip
+	            || req.connection.remoteAddress
+	            || req.socket.remoteAddress
+	            || req.connection.socket.remoteAddress;
+
 	var ip = incoming.match(IPV4_MATCHER);
 	dns.resolve(config.domain, function(err, addresses, family) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
 			var body = "";
+
 			req.on('data', function (chunk) {
-			  body += chunk;
+				body += chunk;
 			});
+
 			req.on('end', function () {
-			  res.writeHead(200, {'Content-Type': 'text/html'});
-			  apputil.log('New command Posted: ' + body);
-			  var addMessage = "Adding new command failed with error:\r\n";
-			  try {
-			  commands.update(body, function(error, message) {
-				if(!error) {
-					addMessage = message;
-				} else {
-					addMessage += error;
+				res.writeHead(200, {'Content-Type': 'text/html'});
+				apputil.log('New command Posted: ' + body);
+				var addMessage = "Adding new command failed with error:\r\n";
+				try {
+					commands.update(body, function(error, message) {
+						if(!error) {
+							addMessage = message;
+						}
+						else {
+							addMessage += error;
+						}
+						apputil.log(addMessage);
+						res.end(addMessage);
+					});
 				}
-				apputil.log(addMessage);
-				res.end(addMessage);
-			  });
-			  } catch (err) {
-				apputil.log(addMessage + err);
-				res.end(addMessage + err);
-			  }
+				catch (err) {
+					apputil.log(addMessage + err);
+					res.end(addMessage + err);
+				}
 			});
-		} else {
+		}
+		else {
 			apputil.log("IP: " + ip + " tried to access /addcommand. cbarr.net: " + addresses[0],
 				config.accessLogFile);
 			res.status(500).send('Access denied');
@@ -124,7 +134,11 @@ app.post("/addcommand", function(req, res) {
 });
 
 app.get("/log", function(req, res) {
-	var incoming = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+	var incoming = req.ip
+	            || req.connection.remoteAddress
+	            || req.socket.remoteAddress
+	            || req.connection.socket.remoteAddress;
+
 	var ip = incoming.match(IPV4_MATCHER);
 	dns.resolve(config.domain, function(err, addresses, family) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
@@ -132,7 +146,8 @@ app.get("/log", function(req, res) {
 				if (error) {
 					apputil.log(error);
 					res.end(error);
-				} else {
+				}
+				else {
 					res.end(logData);
 				}
 			});
@@ -146,15 +161,20 @@ app.get("/log", function(req, res) {
 });
 
 app.get("/badcommands", function(req, res) {
-	var incoming = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+	var incoming = req.ip
+	            || req.connection.remoteAddress
+	            || req.socket.remoteAddress
+	            || req.connection.socket.remoteAddress;
+
 	var ip = incoming.match(IPV4_MATCHER);
 	dns.resolve(config.domain, function(err, addresses, family) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
-			api.badcommands(config.badCommandsFile, function(error, badcommands){
+			api.badcommands(config.badCommandsFile, function(error, badcommands) {
 				if (error) {
 					apputil.log(error);
 					res.end(error);
-				} else {
+				}
+				else {
 					res.end(badcommands);
 				}
 			});
@@ -168,7 +188,11 @@ app.get("/badcommands", function(req, res) {
 });
 
 app.get("/testmode", function(req, res) {
-	var incoming = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+	var incoming = req.ip
+	            || req.connection.remoteAddress
+	            || req.socket.remoteAddress
+	            || req.connection.socket.remoteAddress;
+
 	var ip = incoming.match(IPV4_MATCHER);
 	dns.resolve(config.domain, function(err, addresses, family) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
@@ -183,7 +207,11 @@ app.get("/testmode", function(req, res) {
 });
 
 app.get("/toggletestmode", function(req, res) {
-	var incoming = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || req.connection.socket.remoteAddress;
+	var incoming = req.ip
+	            || req.connection.remoteAddress
+	            || req.socket.remoteAddress
+	            || req.connection.socket.remoteAddress;
+
 	var ip = incoming.match(IPV4_MATCHER);
 	dns.resolve(config.domain, function(err, addresses, family) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
@@ -193,7 +221,8 @@ app.get("/toggletestmode", function(req, res) {
 					var message = "Test mode successfully toggled. Test mode now set to " + newConfig.testmode;
 					apputil.log(message);
 					res.end(message);
-				} else {
+				}
+				else {
 					apputil.log(error);
 					res.end(error);
 				}
@@ -208,11 +237,12 @@ app.get("/toggletestmode", function(req, res) {
 });
 
 app.use(function(err, req, res, next) {
-  apputil.log("Error with server:\r\nError:\r\n" + err + "\r\nStack:" + err.stack);
-  res.status(500).send('Something broke!');
+	apputil.log("Error with server:\r\nError:\r\n" + err + "\r\nStack:" + err.stack);
+	res.status(500).send('Something broke!');
 });
 
 apputil.log("Beginning dtg_bot loop.");
+
 if (config.reddit) {
 	setInterval(function(){
 		dtg_bot.run(config, function(error) {
@@ -221,7 +251,8 @@ if (config.reddit) {
 			}
 		});
 	}, 60 * 5 * 1000);
-} else {
+}
+else {
 	apputil.log("Warning: No reddit access key found in appconfig.json. Dtg_bot functions will be inactive.");
 }
 

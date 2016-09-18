@@ -54,14 +54,11 @@ app.post("/command", function(req, res) {
 });
 
 app.get("/commandlist", function(req, res) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-	commands.list(function(error, commandPage) {
-		if (error) {
-			res.end("Whoops! Something went wrong.");
-		} else {
-			res.end(commandPage);
-		}
-	});
+	res.redirect('/list.html');
+});
+
+app.get("/list", function(req, res) {
+	res.redirect('/list.html');
 });
 
 app.get("/add", function(req, res) {

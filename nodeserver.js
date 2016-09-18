@@ -78,7 +78,8 @@ app.get("/commandlist", function(req, res) {
 	commandsController.list(function(error, commandPage) {
 		if (error) {
 			res.end("Whoops! Something went wrong.");
-		} else {
+		}
+		else {
 			res.end(commandPage);
 		}
 	});

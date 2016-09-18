@@ -41,7 +41,7 @@ catch(error) {
 // update the commands command to point to this instance of the bot
 try {
 	commands["commands"] = `http://${config.domain}:${config.port}/commandlist`;
-	fs.writeFileSync(commandsController.commandJsonDir(), JSON.stringify(commands));
+	fs.writeFileSync(commandsController.commandJsonDir(), JSON.stringify(commands, null, 2));
 	apputil.log("Successfully updated commands list url with port " + config.port);
 }
 catch (error) {

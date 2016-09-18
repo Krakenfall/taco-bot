@@ -80,7 +80,7 @@ var run = function(config, callback) {
 										"name": config.dtgCommandUpdates[k].name, 
 										"value": postUrl
 									};
-									commands.update(JSON.stringify(updateData), function(e, result) {
+									commands.update(JSON.stringify(updateData, null, 2), function(e, result) {
 										if (!e) {
 											apputil.log(result, "dtg.log");
 										} else {
@@ -100,7 +100,7 @@ var run = function(config, callback) {
 			} else {
 				// Write saved posts to file
 				apputil.log("Saving posts", "dtg.log");
-				fs.writeFileSync("saved.json", JSON.stringify(savedPosts));
+				fs.writeFileSync("saved.json", JSON.stringify(savedPosts, null, 2));
 			}
 		} else {
 			apputil.log("Error:\r\n" + err, "dtg.log");

@@ -173,9 +173,13 @@
 
 						var commands = sortObject(data);
 						var divFactory = function(name, val) {
+							var reply = val;
+							if (val.lastIndexOf("http://") == 0 | val.lastIndexOf("https://") == 0) {
+								reply = "<a href=\"" + reply + "\" target=\"_blank\">" + reply + "</a>";
+							}
 							return "<div class=\"row-fluid\">" + 
 								"<div class=\"col-sm-4\" align=\"center\"><p>!" + name + "</p></div>" +
-								"<div class=\"col-sm-8\"><p class=\"text-left\">" + val + "</p></div>" +
+								"<div class=\"col-sm-8\"><p class=\"text-left\">" + reply + "</p></div>" +
 								"</div><br>";
 						};
 						var listContent = "";

@@ -2,6 +2,8 @@ var fs = require('fs');
 var http = require('http');
 var request = require('request');
 
+var config = require('./appconfig.json');
+
 var log = function(data, file) {
 	var logFile = "";
 	if (file) {
@@ -28,39 +30,42 @@ var getFileContents = function(filename, callback) {
 	}
 };
 
-var groupme_text_post = function(text, config, callback) {
+// TODO: streamline this out with promises
+function announceError(source, message, callback) {
+	var logMessage = `${source}:\r\n${message}`;
+
+	log(message);
+	callback(logMessage);
+}
+
+
+var groupme_text_post = function(text, callback) {
 	var bot = null;
-	try {
-		if (config.testmode) {
-			bot = config.testbot;
-		} else {
-			bot = config.bot;
-		}
-	} catch (err) {
-		var message = "Error with bot info:\r\n" + err;
-		log(message);
-		callback(message);
+	try{
+		bot = (config.testmode)? config.testbot : config.bot;
 	}
+	catch (error) {
+		announceError('groupme_text_post', `Error retrieving config settings:\r\n${error}`, callback);
+	}
+
 	try {
 		var message = "Success! Posted:\r\n";
-		request.post("https://api.groupme.com/v3/bots/post", 
-			{json: {"bot_id": bot.id, "text": text}},
-		function(error, response, body) {
-			if (!error && response.statusCode == 200) {
-				message += text + " Response: \r\n" + body;
-				callback(null, message);
+
+		request.post("https://api.groupme.com/v3/bots/post"
+			, {json: {"bot_id": bot.id, "text": text}}
+			, (error, response, body) => {
+				if (!error && response.statusCode >= 200 && response.statusCode < 300) {
+					message = `${message}${text} Response: \r\n${body}`;
+					callback(null, message);
+				}
+				else {
+					message = `Failed to submit GroupMe message.\r\nResponse Code: ${response.statusCode}\r\nError: ${error}\r\nMessage body:\r\n${text}`;
+					announceError('groupme_text_post', message, callback);
+				}
 			}
-			else if (!error && response.statusCode == 202) {
-				message += text + " Response: \r\n" + body;
-				callback(null, message);
-			} else {
-				message = "Failed to submit GroupMe message.\r\nResponse Code: " + 
-					response.statusCode + "\r\nError: " + error + "\r\nMessage body:\r\n" + text;
-				log(message);
-				callback(message);
-			}
-		});
-	} catch (err) {
+		);
+	}
+	catch (err) {
 		message = "Error submitting groupme message: " + err;
 		log(message);
 	}

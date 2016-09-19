@@ -233,7 +233,7 @@ var checkForCommandArray = function(command, commandObject, callback) {
 	}
 };
 
-var processCommand = function(command, post, config) {
+var processCommand = function(command, post) {
 	apputil.readFile(commandJsonDir(), function (error, commandsFileContent){
 		if (error) {
 			apputil.log(error);
@@ -251,7 +251,7 @@ var processCommand = function(command, post, config) {
 					checkForCommandArray(storedCommand, storedCommands[storedCommand],
 						function(err, reply) {
 						if (!err) {
-							apputil.groupme_text_post(reply, config, function(e, result){
+							apputil.groupme_text_post(reply, function(e, result){
 								if (!e) {
 									apputil.log(result);
 								} else {
@@ -292,7 +292,7 @@ module.exports = {
 
 	update : updateCommands,
 
-	investigate: function(groupmePost, config) {
+	investigate: function(groupmePost) {
 		if (isIgnoredAccount(groupmePost))
 		{
 			// if the account is an ignored account don't do anything more with the
@@ -303,7 +303,7 @@ module.exports = {
 		// find commands in the text of the groupme message and process them
 		var commands = parseMessage(groupmePost.text);
 		for (var i = 0; i < commands.length; i++) {
-			processCommand(commands[i], groupmePost, config);
+			processCommand(commands[i], groupmePost);
 		}
 	}
 };

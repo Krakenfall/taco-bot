@@ -5,12 +5,6 @@ var dns = Promise.promisifyAll(require('dns'));
 var express = require('express');
 var bodyParser = require('body-parser');
 
-// Include Internal dependencies
-var commandsController = require("./commands.js");
-var apputil = require("./util.js");
-var dtg_bot = require("./dtg_bot.js");
-var api = require("./api.js");
-
 // Define constants
 const CONFIG_FILE_NAME = './appconfig.json';
 const STATIC_CONTENT_DIR = './public';
@@ -20,15 +14,22 @@ const IPV4_MATCHER = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
 var config = null;
 var commands = null;
 
-
+// Include Internal dependencies
 // Load the configuration. If the file does not exist, terminate the application.
 try {
 	config = require(CONFIG_FILE_NAME);
 }
 catch(error) {
-	console.log(`Could not read config file at ${CONFIG_FILE}:\r\n${error}`);
+	console.log(`Could not read config file at ${CONFIG_FILE_NAME}:\r\n${error}`);
 	return -1;
 }
+
+var commandsController = require("./commands.js");
+var apputil = require("./util.js");
+var dtg_bot = require("./dtg_bot.js");
+var api = require("./api.js");
+
+
 
 // Load the command list. If the file does not exist, terminate the application.
 try {
@@ -66,7 +67,7 @@ app.get('/', function(req, res) {
 app.post("/command", function(req, res) {
 	res.writeHead(200);
 	console.log('Command Posted:', req.body);
-	res.end(commandsController.investigate(req.body, config));
+	res.end(commandsController.investigate(req.body));
 });
 
 app.get("/commandlist", function(req, res) {

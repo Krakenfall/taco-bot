@@ -14,7 +14,7 @@ var api = require("./api.js");
 // Define constants
 const CONFIG_FILE_NAME = './appconfig.json';
 const STATIC_CONTENT_DIR = './public';
-const IPV4_MATCHER = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
+const IPV4_MATCHER = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
 
 // Define globals
 var config = null;
@@ -41,7 +41,7 @@ catch(error) {
 
 // update the commands command to point to this instance of the bot
 try {
-	commands["commands"] = `http://${config.domain}:${config.port}/commandlist`;
+	commands["commands"] = `http://${config.domain}:${config.port}/list.html`;
 	fs.writeFileSync(commandsController.commandJsonDir(), JSON.stringify(commands, null, 2));
 	apputil.log("Successfully updated commands list url with port " + config.port);
 }
@@ -120,7 +120,7 @@ app.post("/addcommand", function(req, res) {
 		}
 		else {
 			apputil.log("IP: " + ip + " tried to access /addcommand. cbarr.net: " + addresses[0],
-				config.accessLogFile);
+				"access.log");
 			res.status(500).send('Access denied');
 		}
 	});
@@ -135,7 +135,7 @@ app.get("/log", function(req, res) {
 	var ip = incoming.match(IPV4_MATCHER);
 	dns.resolve(config.domain, function(err, addresses, family) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
-			api.log(config.logFile, function(error, logData){
+			api.log("nodeserver.log", function(error, logData){
 				if (error) {
 					apputil.log(error);
 					res.end(error);
@@ -147,7 +147,7 @@ app.get("/log", function(req, res) {
 		}
 		else {
 			apputil.log("IP: " + ip + " tried to access /log. cbarr.net: " + addresses[0],
-				config.accessLogFile);
+				"access.log");
 			res.status(500).send('Access denied');
 		}
 	});
@@ -174,7 +174,7 @@ app.get("/badcommands", function(req, res) {
 		}
 		else {
 			apputil.log("IP: " + ip + " tried to access /badcommands. cbarr.net: " + addresses[0],
-				config.accessLogFile);
+				"access.log");
 			res.status(500).send('Access denied');
 		}
 	});
@@ -193,7 +193,7 @@ app.get("/testmode", function(req, res) {
 		}
 		else {
 			apputil.log("IP: " + ip + " tried to access /testmode. cbarr.net: " + addresses[0],
-				config.accessLogFile);
+				"access.log");
 			res.status(500).send('Access denied');
 		}
 	});
@@ -223,7 +223,7 @@ app.get("/toggletestmode", function(req, res) {
 		}
 		else {
 			apputil.log("IP: " + ip + " tried to access /toggletestmode. cbarr.net: " + addresses[0],
-				config.accessLogFile);
+				"access.log");
 			res.status(500).send('Access denied');
 		}
 	});

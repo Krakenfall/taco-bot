@@ -1,5 +1,5 @@
 {
-  "commands": "http://cbarr.net:9001/commandlist",
+  "commands": "http://cbarr.net:9001/list.html",
   "news": "https://www.bungie.net/en-us/news",
   "joke": [
     "Krakenfall can use the Last Word.",

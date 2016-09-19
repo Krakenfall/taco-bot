@@ -69,8 +69,32 @@ var run = function(config, callback) {
 					// Send to GroupMe
 					var postUrl = retrievedPosts[j].url;
 					var postTitle = retrievedPosts[j].title;
-					apputil.log("Sending new link to GroupMe...", "dtg.log");
-					apputil.groupme_text_post(postUrl, config, function(err) {
+					if (redditConfig.postInChat) {
+						apputil.log("Sending new link to GroupMe...", "dtg.log");
+						apputil.groupme_text_post(postUrl, config, function(err) {
+							if (config.dtgCommandUpdates && 
+								config.dtgCommandUpdates.length > 0) {
+								for (var k = 0; k < config.dtgCommandUpdates.length; k++) {
+									if (config.dtgCommandUpdates[k].redditFilter && 
+										postTitle.indexOf(config.dtgCommandUpdates[k].redditFilter) > -1) {
+										var updateData = { 
+											"name": config.dtgCommandUpdates[k].name, 
+											"value": postUrl
+										};
+										commands.update(JSON.stringify(updateData, null, 2), 
+											function(e, result) {
+											if (!e) {
+												apputil.log(result, "dtg.log");
+											} else {
+												callback(e);
+											}
+										});
+										break;
+									}
+								}
+							}
+						});
+					} else {
 						if (config.dtgCommandUpdates && 
 							config.dtgCommandUpdates.length > 0) {
 							for (var k = 0; k < config.dtgCommandUpdates.length; k++) {
@@ -80,7 +104,8 @@ var run = function(config, callback) {
 										"name": config.dtgCommandUpdates[k].name, 
 										"value": postUrl
 									};
-									commands.update(JSON.stringify(updateData, null, 2), function(e, result) {
+									commands.update(JSON.stringify(updateData, null, 2), 
+										function(e, result) {
 										if (!e) {
 											apputil.log(result, "dtg.log");
 										} else {
@@ -91,7 +116,7 @@ var run = function(config, callback) {
 								}
 							}
 						}
-					});
+					}
 				}
 			}
 			

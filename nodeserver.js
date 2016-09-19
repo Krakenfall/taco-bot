@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var fs = Promise.promisifyAll(require('fs'));
 var dns = Promise.promisifyAll(require('dns'));
 var express = require('express');
+var bodyParser = require('body-parser');
 
 // Include Internal dependencies
 var commandsController = require("./commands.js");
@@ -52,24 +53,20 @@ catch (error) {
 // Begin Express handlers
 var app = express();
 
+// Install express middleware
 app.use(express.static(STATIC_CONTENT_DIR));
+app.use(bodyParser.json());
 
+// Handle root
 app.get('/', function(req, res) {
 	res.send('No thank you.');
 });
 
+// Receive messages from groupme bot api
 app.post("/command", function(req, res) {
-	var body = "";
-
-	req.on('data', function (chunk) {
-		body += chunk;
-	});
-
-	req.on('end', function () {
-		res.writeHead(200);
-		console.log(`Command Posted: ${body}`);
-		res.end(commandsController.investigate(body, config));
-	});
+	res.writeHead(200);
+	console.log('Command Posted:', req.body);
+	res.end(commandsController.investigate(req.body, config));
 });
 
 app.get("/commandlist", function(req, res) {

@@ -2,6 +2,7 @@
 logs
 *.log
 npm-debug.log*
+commands_not_found.txt
 
 # Configs
 appconfig.json

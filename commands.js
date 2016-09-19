@@ -127,13 +127,22 @@ var updateCommands = function(postData, callback) {
 
 };
 
+// Look for segments of a message that have an exclamation followed by one or
+// more alphaneumeric characters
 var parseMessage = function(message) {
 	var pattern = /\!([a-zA-Z0-9]+)/g;
 	var matches = message.match(pattern);
+
 	if (matches) {
 		for (var i = 0; i < matches.length; i++) {
 			matches[i] = matches[i].replace(/\!/g, '');
 		}
+	}
+	else {
+		// if no matches are found, return an empty array
+		// this makes it easier for the function's clients to handle because they
+		// do not have to worry about nulls.
+		return [];
 	}
 	return matches;
 };
@@ -263,6 +272,18 @@ var processCommand = function(command, post, config) {
 	});
 };
 
+// Check for known ignored accounts (bots, kuranden, etc)
+// TODO: Move some of this into configuration maybe?
+var isIgnoredAccount = function(groupmePost) {
+	var senderId = groupmePost.sender_id;
+	var senderType = groupmePost.sender_type;
+
+	return senderId === "329044"
+		|| senderId === "329214"
+		|| senderId === "356826"
+		|| senderType === "bot" // ignore all bot posts, we may want to relax this restriction in the future
+}
+
 module.exports = {
 
 	commandJsonDir: commandJsonDir,
@@ -272,22 +293,17 @@ module.exports = {
 	update : updateCommands,
 
 	investigate: function(groupmePost, config) {
-		try {
-			var messageObject = JSON.parse(groupmePost);
-		} catch (err) {
-			apputil.log("Bad JSON in message from GroupMe:\r\nMessage:\r\n" + groupmePost
-				+ "\r\nError:\r\n" + err);
+		if (isIgnoredAccount(groupmePost))
+		{
+			// if the account is an ignored account don't do anything more with the
+			// post
+			return;
 		}
-		if (messageObject) {
-			var commands = parseMessage(messageObject.text);
-			if (commands &&
-				messageObject.sender_id != "329044" &&
-				messageObject.sender_id != "329214" &&
-				messageObject.sender_id != "356826") {
-				for (var i = 0; i < commands.length; i++) {
-					processCommand(commands[i], messageObject, config);
-				}
-			} // No else actions, since this will be done every GroupMe message
+
+		// find commands in the text of the groupme message and process them
+		var commands = parseMessage(groupmePost.text);
+		for (var i = 0; i < commands.length; i++) {
+			processCommand(commands[i], groupmePost, config);
 		}
 	}
 };

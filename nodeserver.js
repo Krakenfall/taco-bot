@@ -5,30 +5,18 @@ var dns = Promise.promisifyAll(require('dns'));
 var express = require('express');
 var bodyParser = require('body-parser');
 
-// Define constants
-const CONFIG_FILE_NAME = './appconfig.json';
-const STATIC_CONTENT_DIR = './public';
-const IPV4_MATCHER = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
-
-// Define globals
-var config = null;
-var commands = null;
-
-// Include Internal dependencies
-// Load the configuration. If the file does not exist, terminate the application.
-try {
-	config = require(CONFIG_FILE_NAME);
-}
-catch(error) {
-	console.log(`Could not read config file at ${CONFIG_FILE_NAME}:\r\n${error}`);
-	return -1;
-}
-
+var configService = require('./services/configuration.js');
 var commandsController = require("./commands.js");
 var apputil = require("./util.js");
 var dtg_bot = require("./dtg_bot.js");
 var api = require("./api.js");
 
+// Define constants
+const STATIC_CONTENT_DIR = './public';
+const IPV4_MATCHER = /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/;
+
+// Define globals
+var commands = null;
 
 
 // Load the command list. If the file does not exist, terminate the application.
@@ -41,6 +29,8 @@ catch(error) {
 }
 
 // update the commands command to point to this instance of the bot
+var config = configService.GetConfigurationSync();
+
 try {
 	commands["commands"] = `http://${config.domain}:${config.port}/list.html`;
 	fs.writeFileSync(commandsController.commandJsonDir(), JSON.stringify(commands, null, 2));
@@ -83,48 +73,48 @@ app.get("/add", function(req, res) {
 });
 
 app.post("/addcommand", function(req, res) {
-	var incoming = req.ip
-	            || req.connection.remoteAddress
-	            || req.socket.remoteAddress
-	            || req.connection.socket.remoteAddress;
+		var incoming = req.ip
+		            || req.connection.remoteAddress
+		            || req.socket.remoteAddress
+		            || req.connection.socket.remoteAddress;
 
-	var ip = incoming.match(IPV4_MATCHER);
-	dns.resolve(config.domain, function(err, addresses, family) {
-		if (ip == addresses[0] || ip == "127.0.0.1") {
-			var body = "";
+		var ip = incoming.match(IPV4_MATCHER);
+		dns.resolve(config.domain, function(err, addresses, family) {
+			if (ip == addresses[0] || ip == "127.0.0.1") {
+				var body = "";
 
-			req.on('data', function (chunk) {
-				body += chunk;
-			});
+				req.on('data', function (chunk) {
+					body += chunk;
+				});
 
-			req.on('end', function () {
-				res.writeHead(200, {'Content-Type': 'text/html'});
-				apputil.log('New command Posted: ' + body);
-				var addMessage = "Adding new command failed with error:\r\n";
-				try {
-					commands.update(body, function(error, message) {
-						if(!error) {
-							addMessage = message;
-						}
-						else {
-							addMessage += error;
-						}
-						apputil.log(addMessage);
-						res.end(addMessage);
-					});
-				}
-				catch (err) {
-					apputil.log(addMessage + err);
-					res.end(addMessage + err);
-				}
-			});
-		}
-		else {
-			apputil.log("IP: " + ip + " tried to access /addcommand. cbarr.net: " + addresses[0],
-				"access.log");
-			res.status(500).send('Access denied');
-		}
-	});
+				req.on('end', function () {
+					res.writeHead(200, {'Content-Type': 'text/html'});
+					apputil.log('New command Posted: ' + body);
+					var addMessage = "Adding new command failed with error:\r\n";
+					try {
+						commands.update(body, function(error, message) {
+							if(!error) {
+								addMessage = message;
+							}
+							else {
+								addMessage += error;
+							}
+							apputil.log(addMessage);
+							res.end(addMessage);
+						});
+					}
+					catch (err) {
+						apputil.log(addMessage + err);
+						res.end(addMessage + err);
+					}
+				});
+			}
+			else {
+				apputil.log("IP: " + ip + " tried to access /addcommand. cbarr.net: " + addresses[0],
+					"access.log");
+				res.status(500).send('Access denied');
+			}
+		});
 });
 
 app.get("/log", function(req, res) {

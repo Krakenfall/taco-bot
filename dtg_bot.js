@@ -16,7 +16,8 @@ var is_saved = function(id, saved_list) {
 	return false;
 };
 
-var run = function(config, callback) {
+var run = function(callback) {
+	var config = require('./appconfig.json');
 	var redditConfig = config.reddit;
 	apputil.log("Authenticating...", "dtg.log");
 	reddit.setupOAuth2(redditConfig.clientId, redditConfig.secretId);
@@ -61,17 +62,17 @@ var run = function(config, callback) {
 			var newPosts = [];
 			for (var j = 0; j < retrievedPosts.length; j++) {
 				if (!is_saved(retrievedPosts[j].id, savedPosts)) {
-					apputil.log("New post: " + retrievedPosts[j].title, "dtg.log");
+					apputil.log("New post: " + retrievedPosts[j].title, "dtg.log", true);
 					newPosts.push(retrievedPosts[j]);
 					// Add to saved posts
-					apputil.log("Saving new post...", "dtg.log");
+					apputil.log("Saving new post...", "dtg.log", true);
 					savedPosts.push(retrievedPosts[j]);
 					// Send to GroupMe
 					var postUrl = retrievedPosts[j].url;
 					var postTitle = retrievedPosts[j].title;
 					if (redditConfig.postInChat) {
-						apputil.log("Sending new link to GroupMe...", "dtg.log");
-						apputil.groupme_text_post(postUrl, config, function(err) {
+						apputil.log("Sending new link to GroupMe...", "dtg.log", true);
+						apputil.groupme_text_post(postUrl, function(err) {
 							if (config.dtgCommandUpdates && 
 								config.dtgCommandUpdates.length > 0) {
 								for (var k = 0; k < config.dtgCommandUpdates.length; k++) {
@@ -84,7 +85,7 @@ var run = function(config, callback) {
 										commands.update(JSON.stringify(updateData, null, 2), 
 											function(e, result) {
 											if (!e) {
-												apputil.log(result, "dtg.log");
+												apputil.log(result, "dtg.log", true);
 											} else {
 												callback(e);
 											}
@@ -107,7 +108,7 @@ var run = function(config, callback) {
 									commands.update(JSON.stringify(updateData, null, 2), 
 										function(e, result) {
 										if (!e) {
-											apputil.log(result, "dtg.log");
+											apputil.log(result, "dtg.log", true);
 										} else {
 											callback(e);
 										}
@@ -124,16 +125,17 @@ var run = function(config, callback) {
 				apputil.log("No new posts", "dtg.log");
 			} else {
 				// Write saved posts to file
-				apputil.log("Saving posts", "dtg.log");
+				apputil.log("Saving posts", "dtg.log", true);
 				fs.writeFileSync("saved.json", JSON.stringify(savedPosts, null, 2));
+				apputil.log("New posts saved", "dtg.log", true);
 			}
 		} else {
-			apputil.log("Error:\r\n" + err, "dtg.log");
+			apputil.log("Error:\r\n" + err, "dtg.log", true);
 			callback(err);
 		}
 	});
 	} catch(error) {
-		apputil.log("ERROR: Something went wrong: \r\n" + error, "dtg.log");
+		apputil.log("ERROR: Something went wrong: \r\n" + error, "dtg.log", true);
 		callback(error);
 	}
 }

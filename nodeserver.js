@@ -203,7 +203,7 @@ app.get("/toggletestmode", function(req, res) {
 	var ip = incoming.match(IPV4_MATCHER);
 	dns.resolve(config.domain, function(err, addresses, family) {
 		if (ip == addresses[0] || ip == "127.0.0.1") {
-			api.toggletestmode(CONFIG_FILE_NAME, function(error, newConfig) {
+			api.toggletestmode(function(error, newConfig) {
 				if (!error) {
 					config = newConfig;
 					var message = "Test mode successfully toggled. Test mode now set to " + newConfig.testmode;

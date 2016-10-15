@@ -74,7 +74,7 @@ function getConfigurationSync (ConfigFileName) {
 function saveConfiguration (Config, ConfigFileName){
   var configFileName = (ConfigFileName == null)? CONFIG_FILE_NAME : ConfigFileName;
 
-  return fs.WriteFileAsync(configFileName, JSON.stringify(Config, null, 2))
+  return fs.writeFileAsync(configFileName, JSON.stringify(Config, null, 2))
     .then(() => getConfiguration(configFileName));
 }
 
@@ -82,6 +82,7 @@ function saveConfiguration (Config, ConfigFileName){
 updateConfiguration(CONFIG_FILE_NAME);
 
 module.exports = {
+  CONFIG_FILE_NAME: CONFIG_FILE_NAME,
   GetConfiguration: getConfiguration,
   GetConfigurationSync: getConfigurationSync,
   SaveConfiguration: saveConfiguration

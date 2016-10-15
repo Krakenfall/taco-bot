@@ -130,12 +130,12 @@ var run = function(callback) {
 				apputil.log("New posts saved", "dtg.log", true);
 			}
 		} else {
-			apputil.log("Error:\r\n" + err, "dtg.log", true);
+			apputil.log("Error:\r\n" + err.stack, "dtg.log", true);
 			callback(err);
 		}
 	});
 	} catch(error) {
-		apputil.log("ERROR: Something went wrong: \r\n" + error, "dtg.log", true);
+		apputil.log("ERROR: Something went wrong: \r\n" + error.stack, "dtg.log", true);
 		callback(error);
 	}
 }

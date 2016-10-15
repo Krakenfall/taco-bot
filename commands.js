@@ -67,7 +67,7 @@ var listCommands = function(callback) {
 				list += "</table></body></html>";
 				callback(null, list);
 			} catch(err) {
-				apputil.log("Error generating command list html:\r\n" + err);
+				apputil.log("Error generating command list html:\r\n" + err.stack);
 				callback(err);
 			}
 		}
@@ -94,7 +94,7 @@ var updateCommands = function(postData, callback) {
 			try {
 				currentCommands = JSON.parse(fs.readFileSync(commandJsonDir()));
 			} catch(err) {
-				var message = "Error parsing commands.json:\r\n" + err;
+				var message = "Error parsing commands.json:\r\n" + err.stack;
 				apputil.log(message);
 				callback(err);
 				// Below: disallows adding invalid commands
@@ -109,7 +109,7 @@ var updateCommands = function(postData, callback) {
 						newCommand.name.toLowerCase() + " returns \"" +
 						newCommand.value + "\"");
 				} catch (error) {
-					var message = "Error parsing commands.json while updating commands:\r\n" + error;
+					var message = "Error parsing commands.json while updating commands:\r\n" + error.stack;
 					apputil.log(message);
 					callback(message);
 				}
@@ -120,7 +120,7 @@ var updateCommands = function(postData, callback) {
 			}
 		}
 	} catch(err) {
-		var message = "Error: Submitted data was an invalid command or had invalid JSON:\r\n" + err;
+		var message = "Error: Submitted data was an invalid command or had invalid JSON:\r\n" + err.stack;
 		apputil.log(message);
 		callback(message);
 	}
@@ -157,7 +157,7 @@ try {
 	jokes = JSON.parse(fs.readFileSync(commandJsonDir())).joke;
 	husker = JSON.parse(fs.readFileSync(commandJsonDir())).huskersermon;
 }
-catch (err) { apputil.log("Error: Failed to read command.json at startup\r\n" + err); }
+catch (err) { apputil.log("Error: Failed to read command.json at startup\r\n" + err.stack); }
 var checkForCommandArray = function(command, commandObject, callback) {
 	if (command == "joke" && Object.prototype.toString.call(commandObject) == "[object Array]") {
 		console.log("jokes.length: " + jokes.length);
@@ -181,7 +181,7 @@ var checkForCommandArray = function(command, commandObject, callback) {
 			jokes = [];
 			try { jokes = JSON.parse(fs.readFileSync(commandJsonDir())).joke; }
 			catch (err) {
-				var errmessage = "Error: Failed to reload command.json for new jokes\r\n" + err;
+				var errmessage = "Error: Failed to reload command.json for new jokes\r\n" + err.stack;
 				apputil.log(errmessage);
 				callback(errmessage);
 			}
@@ -215,7 +215,7 @@ var checkForCommandArray = function(command, commandObject, callback) {
 			husker = [];
 			try { husker = JSON.parse(fs.readFileSync(commandJsonDir())).joke; }
 			catch (err) {
-				var errmessage = "Error: Failed to reload command.json for new husker\r\n" + err;
+				var errmessage = "Error: Failed to reload command.json for new husker\r\n" + err.stack;
 				apputil.log(errmessage);
 				callback(errmessage);
 			}

@@ -109,7 +109,7 @@ app.post("/addcommand", function(req, res) {
 					}
 					catch (err) {
 						apputil.log(addMessage + err.stack, null, true);
-						res.end(addMessage + err);
+						res.end(addMessage + err.stack);
 					}
 				});
 			}
@@ -225,7 +225,7 @@ app.get("/toggletestmode", function(req, res) {
 });
 
 app.use(function(err, req, res, next) {
-	apputil.log("Error with server:\r\nError:\r\n" + err + "\r\nStack:" + err.stack);
+	apputil.log("Error with server:\r\nError:\r\n" + err.stack + "\r\nStack:" + err.stack);
 	res.status(500).send('Something broke!');
 });
 
@@ -235,7 +235,7 @@ if (config.reddit) {
 	setInterval(function(){
 		dtg_bot.run(config, function(error) {
 			if (error) {
-				apputil.log("Failed when running dtg_bot:\r\n" + error, null, true);
+				apputil.log("Failed when running dtg_bot:\r\n" + error.stack, null, true);
 			}
 		});
 	}, 60 * 5 * 1000);

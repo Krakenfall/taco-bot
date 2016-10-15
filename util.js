@@ -1,8 +1,7 @@
 var fs = require('fs');
 var http = require('http');
 var request = require('request');
-
-var config = require('./appconfig.json');
+var configService = require('./services/configuration.js');
 
 var log = function(data, file, logInConsole) {
 	var logFile = "";
@@ -40,9 +39,12 @@ function announceError(source, message, callback) {
 
 
 var groupme_text_post = function(text, callback) {
+	var config = {};
+	var configFileName = configService.CONFIG_FILE_NAME;
 	var bot = null;
-	try{
-		bot = (config.testmode)? config.testbot : config.bot;
+	try {
+		config = configService.GetConfigurationSync(configFileName);
+		bot = (config.testmode)? config.testbot : config.bot;		
 	}
 	catch (error) {
 		announceError('groupme_text_post', `Error retrieving config settings:\r\n${error}`, callback);
@@ -75,8 +77,6 @@ function shuffle(list) {
     for(var j, x, i = list.length; i; j = parseInt(Math.random() * i), x = list[--i], list[i] = list[j], list[j] = x);
     return list;
 };
-
-// Load config from file
 
 module.exports = {
 	readFile: getFileContents,

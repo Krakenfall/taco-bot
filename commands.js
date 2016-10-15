@@ -236,7 +236,7 @@ var checkForCommandArray = function(command, commandObject, callback) {
 var processCommand = function(command, post) {
 	apputil.readFile(commandJsonDir(), function (error, commandsFileContent){
 		if (error) {
-			apputil.log(error);
+			apputil.log(error.stack);
 		} else {
 			var storedCommands = null;
 			try {

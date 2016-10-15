@@ -4,7 +4,7 @@ var request = require('request');
 
 var config = require('./appconfig.json');
 
-var log = function(data, file) {
+var log = function(data, file, logInConsole) {
 	var logFile = "";
 	if (file) {
 		logFile = file;
@@ -13,7 +13,7 @@ var log = function(data, file) {
 	}
 	try {
 		fs.appendFileSync(logFile, new Date() + "\r\n");
-		console.log(data);
+		if (logInConsole) { console.log(data); }
 		fs.appendFileSync(logFile, data + "\r\n\r\n");
 	} catch (error) {
 		console.log("Error: Failed to log data in " + file + "\r\nData: " + data);

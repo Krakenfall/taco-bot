@@ -34,10 +34,10 @@ var config = configService.GetConfigurationSync();
 try {
 	commands["commands"] = `http://${config.domain}:${config.port}/list.html`;
 	fs.writeFileSync(commandsController.commandJsonDir(), JSON.stringify(commands, null, 2));
-	apputil.log("Successfully updated commands list url with port " + config.port);
+	apputil.log("Successfully updated commands list url with port " + config.port, null, true);
 }
 catch (error) {
-	apputil.log(`Could not update commands list url in commands.json with port specification:\r\n${error}`);
+	apputil.log(`Could not update commands list url in commands.json with port specification:\r\n${error}`, null, true);
 }
 
 
@@ -56,7 +56,6 @@ app.get('/', function(req, res) {
 // Receive messages from groupme bot api
 app.post("/command", function(req, res) {
 	res.writeHead(200);
-	console.log('Command Posted:', req.body);
 	res.end(commandsController.investigate(req.body));
 });
 
@@ -99,19 +98,19 @@ app.post("/addcommand", function(req, res) {
 							else {
 								addMessage += error;
 							}
-							apputil.log(addMessage);
+							apputil.log(addMessage, null, true);
 							res.end(addMessage);
 						});
 					}
 					catch (err) {
-						apputil.log(addMessage + err);
+						apputil.log(addMessage + err, null, true);
 						res.end(addMessage + err);
 					}
 				});
 			}
 			else {
 				apputil.log("IP: " + ip + " tried to access /addcommand. cbarr.net: " + addresses[0],
-					"access.log");
+					"access.log", true);
 				res.status(500).send('Access denied');
 			}
 		});
@@ -138,7 +137,7 @@ app.get("/log", function(req, res) {
 		}
 		else {
 			apputil.log("IP: " + ip + " tried to access /log. cbarr.net: " + addresses[0],
-				"access.log");
+				"access.log", true);
 			res.status(500).send('Access denied');
 		}
 	});
@@ -165,7 +164,7 @@ app.get("/badcommands", function(req, res) {
 		}
 		else {
 			apputil.log("IP: " + ip + " tried to access /badcommands. cbarr.net: " + addresses[0],
-				"access.log");
+				"access.log", true);
 			res.status(500).send('Access denied');
 		}
 	});
@@ -184,7 +183,7 @@ app.get("/testmode", function(req, res) {
 		}
 		else {
 			apputil.log("IP: " + ip + " tried to access /testmode. cbarr.net: " + addresses[0],
-				"access.log");
+				"access.log", true);
 			res.status(500).send('Access denied');
 		}
 	});
@@ -214,7 +213,7 @@ app.get("/toggletestmode", function(req, res) {
 		}
 		else {
 			apputil.log("IP: " + ip + " tried to access /toggletestmode. cbarr.net: " + addresses[0],
-				"access.log");
+				"access.log", true);
 			res.status(500).send('Access denied');
 		}
 	});
@@ -231,15 +230,15 @@ if (config.reddit) {
 	setInterval(function(){
 		dtg_bot.run(config, function(error) {
 			if (error) {
-				apputil.log("Failed when running dtg_bot:\r\n" + error);
+				apputil.log("Failed when running dtg_bot:\r\n" + error, null, true);
 			}
 		});
 	}, 60 * 5 * 1000);
 }
 else {
-	apputil.log("Warning: No reddit access key found in appconfig.json. Dtg_bot functions will be inactive.");
+	apputil.log("Warning: No reddit access key found in appconfig.json. Dtg_bot functions will be inactive.", null, true);
 }
 
 app.listen(config.port, function () {
-	apputil.log("Server listening on port " + config.port);
+	apputil.log("Server listening on port " + config.port, null, true);
 });

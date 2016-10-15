@@ -96,7 +96,7 @@ app.post("/addcommand", function(req, res) {
 					apputil.log('New command Posted: ' + body);
 					var addMessage = "Adding new command failed with error:\r\n";
 					try {
-						commands.update(body, function(error, message) {
+						commandsController.update(body, function(error, message) {
 							if(!error) {
 								addMessage = message;
 							}
@@ -108,7 +108,7 @@ app.post("/addcommand", function(req, res) {
 						});
 					}
 					catch (err) {
-						apputil.log(addMessage + err, null, true);
+						apputil.log(addMessage + err.stack, null, true);
 						res.end(addMessage + err);
 					}
 				});

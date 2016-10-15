@@ -53,6 +53,11 @@ app.get('/', function(req, res) {
 	res.send('No thank you.');
 });
 
+// Return api status
+app.get('/status', function(req, res) {
+	res.send('UP');
+});
+
 // Receive messages from groupme bot api
 app.post("/command", function(req, res) {
 	res.writeHead(200);

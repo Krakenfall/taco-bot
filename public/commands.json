@@ -1,5 +1,5 @@
 {
-  "commands": "http://cbarr.net:9001/list.html",
+  "commands": "http://taco-bot.com:80/list.html",
   "news": "https://www.bungie.net/en-us/news",
   "joke": [
     "My guardian kept wondering why the warsat was getting bigger and then it hit him.",
@@ -16,10 +16,10 @@
     "Hive Fallen and I can't get up.",
     "You."
   ],
-  "xur": "https://www.reddit.com/r/DestinyTheGame/comments/531106/xur_megathread_20160916/",
+  "xur": "https://www.reddit.com/r/DestinyTheGame/comments/5g2e0j/xur_megathread_2016122/",
   "humorme": "A. A ha. A ha ha ha. A ha ha ha ha ha ha ha",
   "selfdestruct": "Boom. If I were more powerful, I would make you regret that command.",
-  "weeklyreset": "https://www.reddit.com/r/DestinyTheGame/comments/52jii3/weekly_reset_thread_20160913/",
+  "weeklyreset": "https://www.reddit.com/r/DestinyTheGame/comments/5fhojl/weekly_reset_thread_20161129/",
   "tellemtacobot": "Tell me what to say: https://goo.gl/forms/4whFe5ssYGf8NWAJ3",
   "burnbob": "Lol, bob sucks.",
   "bob": "https://youtu.be/Vwn61EoObtE",
@@ -108,7 +108,7 @@
   "anyone": "http://youtu.be/NP0mQeLWCCo",
   "signup": "http://bit.ly/2bFvHZ9",
   "suggestion": "https://goo.gl/forms/4whFe5ssYGf8NWAJ3",
-  "trialsinfo": "https://www.reddit.com/r/DestinyTheGame/comments/51yfzi/trials_of_osiris_megathread_20160909/",
+  "trialsinfo": "https://www.reddit.com/r/DestinyTheGame/comments/5g4chd/trials_of_osiris_megathread_20161202/",
   "realben": "http://imgur.com/Lljpr8B",
   "bueller": "http://youtu.be/NP0mQeLWCCo",
   "vurtdefurk": "http://imgur.com/0jh2krZ",
@@ -126,5 +126,8 @@
   "why": "Because life is a cosmic joke and you're the butt of it.",
   "lose": "http://youtu.be/zSQNl4V_R88",
   "airhorn": "http://www.instantrapairhorn.com/",
-  "suckit": "https://youtu.be/kX8Qqu_WBIc"
+  "suckit": "https://youtu.be/kX8Qqu_WBIc",
+  "nopoints": "http://youtu.be/yptXkLglKkA",
+  "roasted": "http://imgur.com/EF6Q93K",
+  "ironbanner": "https://www.reddit.com/r/DestinyTheGame/comments/5c28km/iron_banner_megathread_20161109/"
 }
